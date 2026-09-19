@@ -81,29 +81,39 @@ inventing a number the user never gave ([ai/strategy.ts](src/lib/ai/strategy.ts)
 
 ## Architecture
 
+The system runs in two phases, and the difference between them is the product: the owner is in
+the first one and not in the second.
+
+**Phase 1 — signed once, with the owner present**
+
 ```mermaid
 flowchart LR
-    subgraph browser["Browser — Next.js 15 client"]
-        UI["Tabs: on-ramp · off-ramp<br/>automation · AI · history"]
-        WATCH["Rule watcher<br/>15s poll · Horizon cursor"]
-        KEYS[("Wallet Kit · passkey<br/>automation key in IndexedDB")]
-    end
-    API["API routes<br/>server-only keys"]
-    ANCHOR["TRY Anchor<br/>SEP-1/6/10/12/38"]
-    MANDATE["Mandate contract<br/>assets · cap · bounds · expiry"]
-    ROUTER["Soroswap router<br/>quote · swap · reserves"]
-    BANK["Bank account"]
-
-    UI --> KEYS
-    UI --> API
-    UI <--> ANCHOR
-    WATCH --> ANCHOR
-    WATCH -->|"execute, inside the mandate"| MANDATE
-    KEYS -->|"signs the mandate once"| MANDATE
-    MANDATE -->|"pull · swap · forward to owner"| ROUTER
-    ROUTER -.->|"spot price the rules fire on"| WATCH
-    ANCHOR <--> BANK
+    OWNER(["Owner"]) -->|"extension or passkey"| SIGN["Sign in"]
+    SIGN -->|"SEP-10 challenge"| ANCHOR["Anchor"]
+    SIGN -->|"approve: USDC allowance<br/>to the contract, not the bot"| SAC["USDC SAC"]
+    SIGN -->|"set_mandate<br/>assets · cap · bounds · expiry"| MANDATE["Mandate contract"]
+    SIGN -.->|"generates, non-extractable"| BOTKEY[("Automation key<br/>IndexedDB")]
 ```
+
+**Phase 2 — runs on its own, no signature from the owner**
+
+```mermaid
+flowchart LR
+    BANK["Bank account"] -->|"TRY transfer"| ANCHOR["Anchor"]
+    ANCHOR -->|"SEP-6: pays USDC"| WALLET[("Owner's wallet")]
+    WALLET -.->|"Horizon cursor · 15s"| WATCH["Rule watcher"]
+    WATCH -->|"execute — signed by the automation key"| MANDATE["Mandate contract"]
+    MANDATE -->|"transfer_from the owner"| SAC["USDC SAC"]
+    MANDATE --> ROUTER["Soroswap router"]
+    ROUTER -->|"proceeds — to the owner, always"| WALLET
+    ROUTER -.->|"spot price the rules fire on"| WATCH
+    WATCH -->|"at the target: sell, then SEP-6 withdraw"| ANCHOR
+    ANCHOR -->|"TRY payout"| BANK
+```
+
+Everything the owner authorises happens in phase 1. Phase 2 contains no signature of theirs and no
+path that ends anywhere but back at their wallet — the mandate contract decides what may happen,
+and the recipient is not something the caller can choose.
 
 | Component | Responsibility |
 |---|---|
