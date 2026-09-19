@@ -30,10 +30,24 @@ business taking stablecoin payments — and on anyone whose savings lose value w
 good moment to act.
 
 Conduit separates the two. The rule is signed once and enforced by a contract; the funds never
-leave the owner's wallet, and the permission can be revoked at any moment. The rail built here is
-TRY ⇄ USDC through a Turkish anchor, because that is where the need is sharpest and where the
-anchor was available — the same rule engine runs against any SEP-6 anchor, in any currency it
-serves.
+leave the owner's wallet, and the permission can be revoked at any moment.
+
+The rail built here is TRY ⇄ USDC through a Turkish anchor, because that is where the need is
+sharpest and where an anchor was available. It is an instance, not the product: **any SEP-6 anchor
+works, in any currency it settles.** The client is written against the standard rather than
+against this anchor — no branch in it tests for lira, only for whether an asset is fiat — so
+pointing it elsewhere is two settings:
+
+```env
+NEXT_PUBLIC_ANCHOR_HOME_DOMAIN=your-anchor.example
+NEXT_PUBLIC_ANCHOR_FIAT_ASSET=iso4217:BRL
+```
+
+The anchor's own `stellar.toml` supplies the rest: endpoints, currencies, and the customer fields
+SEP-12 will ask for. What stays local is one courtesy check — the payout field is validated as a
+Turkish IBAN before it is sent, which a second market would want replaced with its own format.
+Nothing downstream of the anchor changes at all: the mandate, the rule engine and the swap path
+never learn which currency came in.
 
 ## What it does
 
@@ -150,6 +164,7 @@ npm run dev                  # http://localhost:3000
 ```env
 # Required
 NEXT_PUBLIC_ANCHOR_HOME_DOMAIN=tr-mock-anchor.fly.dev
+NEXT_PUBLIC_ANCHOR_FIAT_ASSET=iso4217:TRY   # any currency the anchor settles
 
 # Optional
 TELEGRAM_BOT_TOKEN=          # server-side only — never prefix with NEXT_PUBLIC_
@@ -212,8 +227,9 @@ src/
 contract, deployed and enforcing assets, cap, price bounds and expiry on chain rather than being a
 plan.
 
-- The anchor is a TRY **mock** anchor. Production needs a licensed Turkish anchor; the client is
-  SEP-compliant and switches by changing one domain.
+- The anchor is a TRY **mock** anchor. Production needs a licensed one — the client is written
+  against the SEPs and moves to another anchor or currency by configuration, but no licensed
+  anchor has been tested against it.
 - The rule lives in `localStorage`, so it runs **while a tab is open**. The payment trigger catches
   up on deposits that arrived while it was closed; a price-triggered exit does not.
 - Testnet pool prices sit far from the real market — measured at the time of writing, XLM about

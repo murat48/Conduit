@@ -34,7 +34,10 @@ export const ANCHOR_CONFIG = {
   HOME_DOMAIN: process.env.NEXT_PUBLIC_ANCHOR_HOME_DOMAIN || 'tr-mock-anchor.fly.dev',
   NETWORK_PASSPHRASE: 'Test SDF Network ; September 2015',
   HORIZON_URL: process.env.NEXT_PUBLIC_HORIZON_URL || 'https://horizon-testnet.stellar.org',
-  FIAT_ASSET: 'iso4217:TRY',
+  // The currency the anchor settles in, as SEP-38 names it. Configurable alongside the domain
+  // because the two always change together: nothing else in the client is denominated — every
+  // fiat branch keys off the `iso4217:` prefix rather than off the code that follows it.
+  FIAT_ASSET: process.env.NEXT_PUBLIC_ANCHOR_FIAT_ASSET || 'iso4217:TRY',
   FUNDING_METHOD: 'bank_account',
   DEFAULT_ASSET_CODE: 'USDC',
   REQUEST_TIMEOUT_MS: 30000,
