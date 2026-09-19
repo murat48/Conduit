@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useWallet } from '@/hooks/use-freighter';
 import * as anchor from '@/lib/anchor';
@@ -1392,13 +1392,57 @@ export default function AnchorPage() {
           </div>
         )}
 
+        {/* What a first visitor sees. Before this the page opened on "Connect your wallet to
+            start", which is an instruction, not an introduction — someone arriving from a link
+            had no way to learn what they were being asked to connect to. Kept to one screen: the
+            claim, the loop it describes, and the three things that make it different. */}
         {!isConnected && (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-            <p className="text-white/70 mb-5">Connect your wallet to start. USDC will arrive in this account.</p>
-            {/* Both ways in, given equal weight. The header carries them too, but this is the
-                card someone actually reads on a first visit — and the passkey route is the one
-                that works for a visitor who has no wallet extension to connect. */}
-            <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 sm:p-10 text-center">
+            <Logo className="w-14 h-14 text-accent mx-auto mb-5" />
+
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight max-w-xl mx-auto">
+              Money that follows a rule you signed once.
+            </h2>
+            <p className="text-white/60 mt-3 max-w-xl mx-auto">
+              Lira arrives from your bank, converts, follows your rule on-chain, and goes back to
+              your bank. Your keys never leave your hands, and the permission stops the moment you
+              revoke it.
+            </p>
+
+            {/* The loop, in the fewest marks that still read as a sequence. */}
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 mt-7 text-xs font-mono">
+              {([
+                ['TRY', 'bank transfer'],
+                ['USDC', 'anchor'],
+                ['asset', 'your rule'],
+                ['USDC', 'at your price'],
+                ['TRY', 'back to the bank'],
+              ] as const).map(([token, caption], index) => (
+                <Fragment key={caption}>
+                  {index > 0 && <span className="text-white/20">→</span>}
+                  <span className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                    <span className="text-white/90">{token}</span>
+                    <span className="block text-[10px] text-white/35 font-sans mt-0.5">{caption}</span>
+                  </span>
+                </Fragment>
+              ))}
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-3 mt-8 text-left">
+              {([
+                [ShieldCheck, 'Signed once', 'A contract holds the limits you set — which assets, how much per day, at which prices, until when — and refuses anything outside them.'],
+                [Zap, 'Runs without you', 'A rule acts the moment money lands, with no prompt and no wallet open. Nothing it does can send value anywhere but back to you.'],
+                [Fingerprint, 'No extension needed', 'Sign in with a passkey: no install, no seed phrase to write down. Your fingerprint or PIN is the key.'],
+              ] as const).map(([Icon, title, body]) => (
+                <div key={title} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <Icon className="w-5 h-5 text-accent mb-2" />
+                  <h3 className="text-sm font-medium mb-1">{title}</h3>
+                  <p className="text-xs text-white/50 leading-relaxed">{body}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
               <button onClick={() => run('connect', connect)} className="bg-accent hover:bg-accent-strong text-canvas px-6 py-3 rounded-xl font-medium">
                 Connect Wallet
               </button>
@@ -1415,12 +1459,12 @@ export default function AnchorPage() {
                 </>
               )}
             </div>
-            {passkeyAvailable && !passkeyKnown && (
-              <p className="text-[11px] text-white/35 mt-3">
-                A passkey makes an account on this device with no extension to install — your fingerprint
-                or PIN is the key.
-              </p>
-            )}
+            {/* The passkey line that used to sit here now says the same as the third card above.
+                What is worth saying instead is that none of this costs anything. */}
+            <p className="text-[11px] text-white/35 mt-4">
+              Stellar testnet. Nothing costs anything — a new account funds itself, and the bank leg
+              is simulated.
+            </p>
           </div>
         )}
 
