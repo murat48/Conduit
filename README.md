@@ -103,21 +103,26 @@ to ask, alongside the limits any request has to fit.
 Step 3 has no signature because nothing is authorised by it: it generates a key the browser can
 sign with but cannot read back. Its address is what step 5 writes down.
 
-**Phase 2 — runs on its own, no signature from the owner**
+**Phase 2 — runs on its own, in order, with no signature from the owner**
 
 ```mermaid
 flowchart LR
-    BANK["Bank account"] -->|"TRY transfer"| ANCHOR["Anchor"]
-    ANCHOR -->|"SEP-6: pays USDC"| WALLET[("Owner's wallet")]
-    WALLET -.->|"Horizon cursor · 15s"| WATCH["Rule watcher"]
-    WATCH -->|"execute — signed by the automation key"| MANDATE["Mandate contract"]
-    MANDATE -->|"transfer_from the owner"| SAC["USDC SAC"]
-    MANDATE --> ROUTER["Soroswap router"]
-    ROUTER -->|"proceeds — to the owner, always"| WALLET
-    ROUTER -.->|"spot price the rules fire on"| WATCH
-    WATCH -->|"at the target: sell, then SEP-6 withdraw"| ANCHOR
-    ANCHOR -->|"TRY payout"| BANK
+    A["1 · USDC arrives<br/><i>anchor pays the owner's wallet</i>"] --> B["2 · Seen<br/><i>watcher · Horizon cursor · ≤15s</i>"]
+    B --> C["3 · Bought<br/><i>one call: pull · swap · return</i>"]
+    C --> D["4 · Held<br/><i>pool price polled against the target</i>"]
+    D --> E["5 · Sold<br/><i>same call, other direction</i>"]
+    E --> F["6 · Cashed out<br/><i>SEP-6 withdrawal → bank</i>"]
 ```
+
+**Step 3 is one transaction, not three.** The contract pulls the USDC from the owner using the
+allowance, swaps it through the router, and forwards the result — and if any part of that fails,
+nothing moved at all. There is no moment where funds sit in the automation wallet, because they
+never reach it.
+
+Where the two rule modes diverge: **portfolio** stops at step 3, splitting each payment across
+assets under the mandate. **Buy & sell** continues through step 6, and runs on the automation
+wallet's own balance rather than under the mandate — see
+[Status and limitations](#status-and-limitations) for why.
 
 Everything the owner authorises happens in phase 1. Phase 2 contains no signature of theirs and no
 path that ends anywhere but back at their wallet — the mandate contract decides what may happen,
