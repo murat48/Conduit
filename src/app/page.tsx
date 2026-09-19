@@ -1638,7 +1638,7 @@ export default function AnchorPage() {
                       onClick={() => setShowAdvancedSigner(previous => !previous)}
                       className="text-xs text-white/40 hover:text-white/70 mb-3"
                     >
-                      {showAdvancedSigner ? '▾' : '▸'} Trading bot
+                      {showAdvancedSigner ? '▾' : '▸'} Let the bot hold the funds
                     </button>
                   )}
 
@@ -2662,6 +2662,33 @@ export default function AnchorPage() {
                   rows={3}
                   className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 w-full text-sm"
                 />
+
+                {/* Starters, because an empty box with a placeholder is a worse prompt than no
+                    box at all: it asks people to guess both what to say and how much detail the
+                    thing can take. These fill the field rather than submitting, so the sentence
+                    can still be edited — and the last one is deliberately underspecified, to show
+                    that a missing number gets a question instead of an invention. */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] text-white/35">Try one:</span>
+                  {([
+                    ['Split across assets', 'Split every incoming payment 40% XLM, 30% AQUA, and leave the rest in dollars. Skip anything with more than 2% price impact.'],
+                    ['Keep most in dollars', 'Put a quarter of anything that arrives into XLM and leave the rest in dollars.'],
+                    ['Buy and take profit', 'Buy XLM with 60% of any USDC that arrives, then sell all of it once XLM reaches 0.12 USDC.'],
+                    ['Buy, sell, cash out', 'Buy AQUA with half of every payment while it is under 0.03 USDC, sell it at 0.04 USDC, and send the proceeds to my bank as lira.'],
+                    ['Leave a gap on purpose', 'Split my money across a few assets.'],
+                  ] as const).map(([label, prompt]) => (
+                    <button
+                      key={label}
+                      onClick={() => { setAiPrompt(prompt); setAiDraft(null); }}
+                      title={prompt}
+                      disabled={busy !== null}
+                      className="text-[11px] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 disabled:opacity-50 text-white/60 hover:text-white px-2.5 py-1.5 rounded-lg transition"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
                 <button
                   onClick={() => run('ai-generate', async () => {
                     setAiDraft(null);
@@ -2675,7 +2702,7 @@ export default function AnchorPage() {
                     setAiDraft(data as StrategyDraft);
                   })}
                   disabled={busy !== null || !aiPrompt.trim()}
-                  className="mt-3 bg-accent hover:bg-accent-strong text-canvas disabled:opacity-50 px-4 py-2 rounded-lg text-sm font-medium"
+                  className="mt-4 bg-accent hover:bg-accent-strong text-canvas disabled:opacity-50 px-4 py-2 rounded-lg text-sm font-medium"
                 >
                   {busy === 'ai-generate' ? 'Thinking…' : 'Generate rule'}
                 </button>
