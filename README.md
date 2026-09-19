@@ -224,13 +224,15 @@ Three attempts at the same problem, in order:
 
 | | | Why it was not enough |
 |---|---|---|
-| **v1** | Grid bot; the automation wallet holds the balance ([/price](src/app/price/page.tsx)) — **the version that won DoraHacks** | Nothing on chain caps what it may do |
+| **v1** | Grid bot; the automation wallet holds the balance — **the version that won DoraHacks**. Its own repository is [soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders) ([demo video](https://youtu.be/RZaMhQO9pdw)); it lives on here as [/price](src/app/price/page.tsx) | Nothing on chain caps what it may do |
 | **v2** | Classic multisig, bot as co-signer ([MultisigSwapTrader.ts](src/lib/MultisigSwapTrader.ts)) | Thresholds are per operation *category*, not per amount or asset; and 2-of-2 needs a signature per trade, which defeats automation |
 | **v3** | Mandate contract | Current design |
 
 `/price` is kept rather than deleted: it is the awarded version, and it is what made the shape of
 the mandate obvious. Its key was brought up to the non-extractable model; its spending limits are
-still v1, and the page says so.
+still v1, and the page says so. The standalone repository is linked above so the claim can be
+checked rather than taken on trust — including what it could not do, which is the reason this
+project exists.
 
 ### Where the keys live
 
@@ -414,6 +416,10 @@ surprise:
 | [`src/app/swap/`](src/app/swap/page.tsx) | A manual swap desk, sharing the router and quoting code with the rule engine. | By URL only |
 | [`src/lib/MultisigSwapTrader.ts`](src/lib/MultisigSwapTrader.ts) + `/api/multisig-*`, `/api/test-bot-funding` | The v2 attempt: the bot as a classic co-signer. Kept as the evidence behind [why not multisig](#the-mandate-automation-without-custody). Nothing in the app calls these routes, and they need a secret this deployment does not set. | No |
 | [`docs/pitch/`](docs/pitch) | The pitch deck and its build script. Not part of the app. | No |
+
+The v1 bot also has a repository of its own, outside this tree:
+[soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders) — the awarded version,
+kept for the record.
 
 ## Status and limitations
 
