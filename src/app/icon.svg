@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!--
+    The tab icon. Deeper than the interface accent on purpose: a browser tab strip is white about
+    half the time, and the lighter teal goes thin on it. Same geometry as public/logo.svg, with
+    the mouth opened a little and the wall thickened, because at sixteen pixels a 110° gap closes
+    up and the mark stops reading as a channel at all.
+  -->
+  <path
+    d="M43.66 13.34A22 22 0 1 0 43.66 50.66"
+    stroke="#14b88a"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+  <circle cx="54" cy="32" r="6" fill="#14b88a" />
+</svg>

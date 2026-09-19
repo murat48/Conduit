@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+ * One dark surface, one accent, one radius scale.
+ *
+ * What was here before was a purple gradient with drifting blobs behind it — the look a Tailwind
+ * tutorial leaves behind, and the one every hackathon ships. It reads as a template before anyone
+ * has looked at what the page does. This is the opposite bet: a quiet near-black, a single accent
+ * that only marks what the user acts on, and numbers that hold still. The interface stops asking
+ * for attention so the data can have it.
+ */
+@theme {
+  /* Backdrop. Not pure black — a trace of blue keeps it from looking like an unpainted div. */
+  --color-canvas: #080b11;
+  --color-canvas-raised: #0d1219;
+
+  /* Surfaces, as three steps rather than whatever alpha was nearest to hand. */
+  --color-surface-1: #10161f;
+  --color-surface-2: #161e2a;
+  --color-surface-3: #1e2836;
+
+  --color-line: #1f2937;
+  --color-line-strong: #2b3646;
+
+  /* One accent, used for the thing to press and nothing else. */
+  --color-accent: #2dd4a7;
+  --color-accent-strong: #14b88a;
+  --color-accent-quiet: #0f3b32;
+
+  /* Meaning, not decoration: these appear only when something is true about the state. */
+  --color-positive: #34d399;
+  --color-negative: #f87171;
+  --color-caution: #fbbf24;
+
+  /*
+   * The old markup mixes rounded-md through rounded-3xl with no system behind it — six values
+   * where two were meant. Rather than rewrite hundreds of class names, the scale itself is
+   * tightened, so the drift lands inside a few pixels and stops being visible.
+   */
+  --radius-md: 0.625rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 1rem;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-canvas);
+  color-scheme: dark;
+}
+
+body {
+  /* A single soft light from above, in place of animated blobs. It does not move, and it is the
+     only thing on the page that is not flat. */
+  background:
+    radial-gradient(70rem 40rem at 50% -12rem, #12303a 0%, transparent 62%),
+    var(--color-canvas);
+  background-attachment: fixed;
+  color: #e6edf5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Money should not dance. Proportional digits change width as they change value, so a price
+ * polled every fifteen seconds jitters sideways and the eye keeps going back to it. Every figure
+ * in this app is already set in the mono face, which makes this one rule enough.
+ */
+.font-mono,
+code,
+kbd,
+samp {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Focus is drawn once, here, so every control agrees on what "focused" looks like. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-accent-quiet);
+  color: #eafff8;
+}
+
+/* A scrollbar that belongs to the page rather than to the operating system. */
+* {
+  scrollbar-color: var(--color-line-strong) transparent;
+  scrollbar-width: thin;
+}

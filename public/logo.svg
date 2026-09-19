@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Conduit">
+  <title>Conduit</title>
+  <!--
+    A channel that comes back.
+
+    The stroke runs 250° of a circle at radius 20.5 and stops short, leaving a mouth on the right:
+    money leaves along it and returns along it, which is the product in one shape — and the shape
+    a return path makes is a C, which is also the name. Its width is the channel, not a line.
+
+    The disc in the mouth is what travels: drawn at the same weight as the channel wall, so it
+    reads as belonging inside it rather than sitting beside it.
+
+    Two elements, one colour, no gradient. It survives being 16 pixels wide, printed in one ink,
+    or inverted — which the arrow-and-bar-chart it replaces did not.
+  -->
+  <path
+    d="M43.76 15.21A20.5 20.5 0 1 0 43.76 48.79"
+    stroke="#2dd4a7"
+    stroke-width="11"
+    stroke-linecap="round"
+  />
+  <circle cx="52.5" cy="32" r="5.5" fill="#2dd4a7" />
+</svg>
