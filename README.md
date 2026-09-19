@@ -16,14 +16,24 @@ over a private key.
 
 ## The problem
 
-A freelancer in Istanbul invoices abroad and is paid in dollars. Converting, saving and cashing
-out to lira are manual decisions at a screen, and each one is a chance to be late.
+**Money that should follow a rule has to be watched by somebody, or held by somebody.**
 
-Crypto tooling does not fix this. A DEX can swap but cannot reach a bank account. An exchange
-reaches a bank account but takes custody first. And the automation that does exist — trading bots
-— asks for the one thing nobody should give away: the private key.
+Convert when the rate is right, keep a share in dollars, cash out when a target is hit — each is a
+decision at a screen, and each screen is a chance to be late. The tools that would take those
+decisions off you want custody in exchange: an exchange holds the balance, and a trading bot asks
+for the private key. Automation and custody arrive as a package, and most people quite reasonably
+decline the package and leave the money still.
 
-Conduit closes the loop, and runs the middle under a mandate the user can revoke at any moment.
+The cost of that falls hardest on anyone earning in one currency and spending in another — a
+freelancer paid in dollars, an exporter invoicing abroad, a household living on remittances, a
+business taking stablecoin payments — and on anyone whose savings lose value while they wait for a
+good moment to act.
+
+Conduit separates the two. The rule is signed once and enforced by a contract; the funds never
+leave the owner's wallet, and the permission can be revoked at any moment. The rail built here is
+TRY ⇄ USDC through a Turkish anchor, because that is where the need is sharpest and where the
+anchor was available — the same rule engine runs against any SEP-6 anchor, in any currency it
+serves.
 
 ## What it does
 
