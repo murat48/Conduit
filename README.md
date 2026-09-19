@@ -405,6 +405,16 @@ src/
     └── ai/strategy.ts       # plain language → rule fields
 ```
 
+**What is in the tree but not in the product.** Left deliberately, so that finding it is not a
+surprise:
+
+| Path | What it is | Reachable from the UI |
+|---|---|---|
+| [`src/app/price/`](src/app/price/page.tsx) | The v1 grid bot — the design this project grew out of. Its key was brought up to the non-extractable model; its spending limits are still v1, and the page says so. | By URL only |
+| [`src/app/swap/`](src/app/swap/page.tsx) | A manual swap desk, sharing the router and quoting code with the rule engine. | By URL only |
+| [`src/lib/MultisigSwapTrader.ts`](src/lib/MultisigSwapTrader.ts) + `/api/multisig-*`, `/api/test-bot-funding` | The v2 attempt: the bot as a classic co-signer. Kept as the evidence behind [why not multisig](#the-mandate-automation-without-custody). Nothing in the app calls these routes, and they need a secret this deployment does not set. | No |
+| [`docs/pitch/`](docs/pitch) | The pitch deck and its build script. Not part of the app. | No |
+
 ## Status and limitations
 
 **Working today:** the whole loop, on testnet, against a live anchor — including the mandate
