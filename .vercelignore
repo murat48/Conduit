@@ -1,0 +1,19 @@
+# What the CLI uploads when deploying from this directory.
+#
+# Vercel does not read .gitignore for this, so paths ignored by git are still sent unless they
+# are named here. Without it the Rust target directory alone is 1.4 GB, and a single debug binary
+# inside it is over the 100 MB per-file limit — the deploy fails after uploading all of it.
+
+# Soroban build artifacts. The contract is deployed to the chain, not to Vercel; the Next.js
+# build needs nothing from here.
+contracts/
+
+# Rebuilt on Vercel from package-lock.json, and rebuilt by Next itself.
+node_modules/
+.next/
+
+# Local only.
+.env*
+.claude/
+tests/
+scripts/
