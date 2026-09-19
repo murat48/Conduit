@@ -84,16 +84,24 @@ inventing a number the user never gave ([ai/strategy.ts](src/lib/ai/strategy.ts)
 The system runs in two phases, and the difference between them is the product: the owner is in
 the first one and not in the second.
 
-**Phase 1 — signed once, with the owner present**
+**Phase 1 — set up once, in order**
 
 ```mermaid
 flowchart LR
-    OWNER(["Owner"]) -->|"extension or passkey"| SIGN["Sign in"]
-    SIGN -->|"SEP-10 challenge"| ANCHOR["Anchor"]
-    SIGN -->|"approve: USDC allowance<br/>to the contract, not the bot"| SAC["USDC SAC"]
-    SIGN -->|"set_mandate<br/>assets · cap · bounds · expiry"| MANDATE["Mandate contract"]
-    SIGN -.->|"generates, non-extractable"| BOTKEY[("Automation key<br/>IndexedDB")]
+    A["1 · Connect<br/><i>extension or passkey</i>"] --> B["2 · Log in to the anchor<br/><i>SEP-10 · 1 signature</i>"]
+    B --> C["3 · Create the automation wallet<br/><i>a key in the browser · no signature</i>"]
+    C --> D["4 · Approve the allowance<br/><i>spender = the contract · 1 signature</i>"]
+    D --> E["5 · Set the mandate<br/><i>limits + who may ask · 1 signature</i>"]
+    C -.->|"its address is the delegate"| E
 ```
+
+Steps 4 and 5 are one button. Two things about them carry the whole design: the allowance names
+**the mandate contract** as the spender rather than the automation wallet, so the wallet never
+holds spending power of its own — and the mandate names that wallet as the only address allowed
+to ask, alongside the limits any request has to fit.
+
+Step 3 has no signature because nothing is authorised by it: it generates a key the browser can
+sign with but cannot read back. Its address is what step 5 writes down.
 
 **Phase 2 — runs on its own, no signature from the owner**
 
