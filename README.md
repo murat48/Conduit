@@ -268,7 +268,7 @@ deployed and enforcing assets, cap, price bounds and expiry. What it does not do
   measured. Rules fire on the pool's price, because that is the market the swap fills in; the
   oracle rate is shown alongside so the gap is visible rather than misleading.
 
-**Next**
+**Roadmap**
 
 1. **Keepers, so rules survive a closed laptop.** The one structural limitation left — and the
    mandate already makes it safe, since the contract decides what is allowed rather than the
