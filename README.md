@@ -115,6 +115,27 @@ flowchart LR
 | [secure-key.ts](src/lib/secure-key.ts) · [passkey.ts](src/lib/passkey.ts) | Two keys that are never stored as text — the automation key, and the owner's when signing in without an extension |
 | [api routes](src/app/api) | Thin proxies so the Telegram token and the model key stay on the server |
 
+### Who signs
+
+Two independent choices, not one setting. *Who signs the automation's trades* is the rule's mode;
+*how the owner's own signature is obtained* is how they logged in. They combine:
+
+| | **Owner signs each trade** | **Automation wallet signs** |
+|---|---|---|
+| **Wallet extension** | A prompt per trade. The rule waits for someone to be there | One mandate signature at setup, then silent. Bounded on chain by assets, cap, price and expiry |
+| **Passkey** | **Silent for six hours — no delegation at all** | Same as above; the one mandate signature is also silent |
+
+The lower-left cell is the one worth pausing on. A passkey session derives the owner's key on
+demand, so in wallet mode the rule runs unattended while signing *as the owner*: no automation key
+exists, no mandate is signed, and nothing has been delegated to anything. The limits are simply
+the six hours and the open tab.
+
+That is a different shape of safety from the mandate, not a weaker one. The mandate bounds an
+authority that outlives the session and works while nobody is watching; this bounds the session
+instead, and grants no authority at all. Which one fits depends on whether the rule needs to
+survive closing the laptop — and the app states which is in force rather than leaving it to be
+inferred.
+
 **Three decisions shape the rest.** The watcher runs in the browser, because a server-side one
 would need custody — the trade is that rules run while a tab is open. Quotes are read from the
 chain rather than an indexer, because Soroswap's routing API does not index testnet pools. And
