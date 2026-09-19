@@ -81,8 +81,10 @@ inventing a number the user never gave ([ai/strategy.ts](src/lib/ai/strategy.ts)
 
 ## Architecture
 
-The system runs in two phases, and the difference between them is the product: the owner is in
-the first one and not in the second.
+Three pictures, three questions: what the owner authorises, what happens afterwards without
+them, and — since that is the part worth not taking on trust — who is able to move what during it.
+
+The first two phases are where the product lives: the owner is in one and absent from the other.
 
 **Phase 1 — set up once, in order**
 
@@ -124,9 +126,33 @@ assets under the mandate. **Buy & sell** continues through step 6, and runs on t
 wallet's own balance rather than under the mandate — see
 [Status and limitations](#status-and-limitations) for why.
 
-Everything the owner authorises happens in phase 1. Phase 2 contains no signature of theirs and no
-path that ends anywhere but back at their wallet — the mandate contract decides what may happen,
-and the recipient is not something the caller can choose.
+**Inside step 3 — who asks, who acts, where the value goes**
+
+```mermaid
+flowchart LR
+    BOT(["Automation wallet<br/><i>holds no allowance of its own</i>"])
+    OWNER[("Owner's wallet")]
+    M["Mandate contract<br/><i>registered delegate? · expired?<br/>asset allowed? · within the cap?<br/>inside the price bound?</i>"]
+    R["Soroswap router"]
+
+    BOT -.->|"asks — carries no value"| M
+    OWNER ==>|"1 · transfer_from, on the allowance"| M
+    M ==>|"2 · swap"| R
+    R ==>|"3 · proceeds"| M
+    M ==>|"4 · transfer — recipient is not a parameter"| OWNER
+```
+
+Thick arrows are value; the dotted one is a request. **No thick arrow touches the automation
+wallet.** It can ask the contract to act and it can be refused, but nothing routes through it, so
+there is no balance to drain and no address it could name instead of the owner's.
+
+That is what bounds a stolen automation key. It cannot steal, because theft needs a recipient and
+the recipient is fixed in the contract. It can force trades the owner did not want — inside the
+assets, cap, price bounds and expiry the owner declared — which costs fees and slippage, not the
+balance.
+
+Everything the owner authorises happens in phase 1. Phase 2 contains no signature of theirs, and
+no path that ends anywhere but back at their wallet.
 
 | Component | Responsibility |
 |---|---|
