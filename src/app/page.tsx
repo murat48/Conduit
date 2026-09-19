@@ -1291,8 +1291,6 @@ export default function AnchorPage() {
             <h1 className="text-xl font-bold tracking-tight">Conduit</h1>
           </Link>
           <div className="flex items-center gap-3">
-            <Link href="/swap" className="text-sm text-white/70 hover:text-white">Swap</Link>
-            <Link href="/price" className="text-sm text-white/70 hover:text-white">Bot Trading</Link>
             {isConnected && publicKey ? (
               <div className="flex items-center gap-2">
                 <span
