@@ -6,6 +6,7 @@
 the user signed once, and leaves back to the same bank account — without the user ever handing
 over a private key.
 
+- **Live:** [conduit-psi-three.vercel.app](https://conduit-psi-three.vercel.app)
 - **Track:** Scale
 - **Network:** Stellar Testnet
 - **Anchor:** `tr-mock-anchor.fly.dev` (SEP-1 / 6 / 10 / 12 / 38, TRY ⇄ USDC)
@@ -428,7 +429,14 @@ chain rather than being a plan.
 
 ## 9. Demo
 
-_<!-- fill in: deployed testnet URL -->_
+**[conduit-psi-three.vercel.app](https://conduit-psi-three.vercel.app)** — running on Stellar
+testnet against the live mock anchor. Nothing costs anything: fund a wallet from Friendbot, and
+the bank leg is simulated.
+
+Sign in with a wallet extension, or with **Create passkey** for an account with neither an
+extension nor a seed phrase. A passkey is bound to the domain it was made on, so one made here
+derives a different account from one made against a local dev server — the app will offer to fund
+the new one.
 
 Video walkthrough: _<!-- fill in: re-record against the current flow -->_
 
