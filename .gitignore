@@ -30,9 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — every one of them, the example included. It holds no secrets, but
+# a file in the repo is a file people fill in and push back.
 .env*
-!.env.example
 
 # vercel
 .vercel

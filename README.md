@@ -291,7 +291,7 @@ with testnet XLM.
 git clone https://github.com/murat48/conduit.git
 cd conduit
 npm install
-cp .env.example .env.local   # then fill in the values below
+touch .env.local             # then fill in the values below
 npm run dev                  # http://localhost:3000
 ```
 
