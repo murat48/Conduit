@@ -268,9 +268,27 @@ deployed and enforcing assets, cap, price bounds and expiry. What it does not do
   measured. Rules fire on the pool's price, because that is the market the swap fills in; the
   oracle rate is shown alongside so the gap is visible rather than misleading.
 
-**Next:** keepers, so rules survive a closed laptop — the mandate already makes that safe, since
-the contract decides what is allowed rather than the caller. Then per-asset price bounds, which is
-what buy & sell needs to run under the mandate. Then a production anchor.
+**Next**
+
+1. **Keepers, so rules survive a closed laptop.** The one structural limitation left — and the
+   mandate already makes it safe, since the contract decides what is allowed rather than the
+   caller. A keeper that cannot exceed the rule does not need to be trusted.
+2. **Per-asset price bounds in the mandate.** `assets` becomes a list of
+   `{ asset, buy_below, sell_above }`. This is what buy & sell needs to run under the contract,
+   and what holding more than one price-conditional position needs.
+3. **A production anchor, then more corridors.** Lira is the corridor we could reach; the argument
+   is the same wherever income and costs are in different currencies. The client already moves by
+   configuration, so BRL, MXN or ARS are an anchor away, not a rewrite.
+4. **More assets as their pools deepen** — USDT0 among them. Adding one is a row in a table; what
+   the code cannot do is create liquidity, and on testnet today nine of the thirteen listed assets
+   hold under 8,000 USDC. A price-impact ceiling protects users from that, but the honest answer
+   is that depth has to arrive first.
+5. **Yield on idle balances** via Blend or DeFindex, so USDC waiting for a rule to fire is not
+   sitting still. This extends the mandate rather than sitting beside it: another thing the
+   contract would be allowed to do, inside the same limits.
+6. **MPC for the automation key**, so no single party holds it whole. Passkeys do not help here —
+   WebAuthn needs user presence for every signature, and this key exists to sign when nobody is
+   present.
 
 ## Also in the tree
 
