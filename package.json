@@ -1,0 +1,61 @@
+{
+  "name": "conduit",
+  "version": "1.0.0",
+  "description": "Advanced automated trading bot for Soroswap DEX on Stellar network with intelligent price tracking and grid trading capabilities",
+  "private": true,
+  "author": "Murat Keskin <murat48@example.com>",
+  "license": "MIT",
+  "keywords": [
+    "stellar",
+    "soroswap",
+    "trading-bot",
+    "defi",
+    "automated-trading",
+    "grid-trading",
+    "cryptocurrency",
+    "next.js",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/murat48/conduit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/murat48/conduit/issues"
+  },
+  "homepage": "https://github.com/murat48/conduit#readme",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "@creit.tech/stellar-wallets-kit": "^2.6.0",
+    "@stellar/stellar-sdk": "^17.0.1",
+    "lucide-react": "^1.47.0",
+    "next": "^15.5.25",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/node": "^20.19.9",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/stellar-sdk": "^0.11.1",
+    "@types/testing-library__jest-dom": "^5.14.9",
+    "eslint": "^9",
+    "eslint-config-next": "^15.5.25",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "axios": "^1.18.0",
+    "postcss": "^8.5.28"
+  }
+}
