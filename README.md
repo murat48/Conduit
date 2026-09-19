@@ -4,8 +4,10 @@
 
 **Money that follows a rule you signed once — without giving anyone your keys.**
 
-Lira arrives from a Turkish bank, converts, follows your rule on-chain, and goes back to the same
-bank. A Soroban contract holds the rule and refuses everything outside it.
+Lira arrives from a Turkish bank and becomes USDC. A rule you wrote takes it from there — **split
+it across assets by percentage**, or **buy one and sell it at a price you set** — and the proceeds
+go back to **your IBAN as lira**. A Soroban contract holds the rule and refuses everything outside
+it.
 
 [**Live on testnet →**](https://conduit-psi-three.vercel.app) · Mandate contract
 [`CAAPS6MY…7DPO`](https://stellar.expert/explorer/testnet/contract/CAAPS6MYLC2DQ4TPOCRDKBCG4HVSQ35P4PCGQ7LAIISHQSPCP4RJ7DPO)

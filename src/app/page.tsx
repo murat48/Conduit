@@ -1404,9 +1404,10 @@ export default function AnchorPage() {
               Money that follows a rule you signed once.
             </h2>
             <p className="text-white/60 mt-3 max-w-xl mx-auto">
-              Lira arrives from your bank, converts, follows your rule on-chain, and goes back to
-              your bank. Your keys never leave your hands, and the permission stops the moment you
-              revoke it.
+              Lira arrives from your bank and becomes USDC. Your rule takes it from there — split it
+              across assets by percentage, or buy one and sell it at a price you set — and the
+              proceeds go back to your IBAN as lira. Your keys never leave your hands, and the
+              permission stops the moment you revoke it.
             </p>
 
             {/* The loop, in the fewest marks that still read as a sequence. */}
