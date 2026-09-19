@@ -29,8 +29,17 @@ freelancer paid in dollars, an exporter invoicing abroad, a household living on 
 business taking stablecoin payments — and on anyone whose savings lose value while they wait for a
 good moment to act.
 
-Conduit separates the two. The rule is signed once and enforced by a contract; the funds never
-leave the owner's wallet, and the permission can be revoked at any moment.
+**The value proposition: a rule that acts on your money without holding it.** Conduit separates
+automation from custody. The rule is signed once and enforced by a Soroban contract; the funds
+never leave the owner's wallet, the contract refuses anything outside the limits they set, and the
+permission can be revoked in one call. Nothing in the system can move value to anywhere but back
+to the owner.
+
+Worth solving because the alternative is not inaction — it is worse decisions. A household in a
+high-inflation economy that cannot automate ends up either holding a depreciating currency or
+handing an exchange custody of everything. Stellar already carries the fiat rails and the
+settlement; what has been missing is a way to let something act on them continuously without
+first giving it the keys.
 
 The rail built here is TRY ⇄ USDC through a Turkish anchor, because that is where the need is
 sharpest and where an anchor was available. It is an instance, not the product: **any SEP-6 anchor
@@ -69,6 +78,47 @@ Every leg runs end to end on testnet:
 The rule can be written as a form, or in plain language: a tool-calling model turns
 *"40% XLM, 30% AQUA, leave the rest in dollars"* into fields, and asks a question rather than
 inventing a number the user never gave ([ai/strategy.ts](src/lib/ai/strategy.ts)).
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph browser["Browser — Next.js 15 client"]
+        UI["Tabs: on-ramp · off-ramp<br/>automation · AI · history"]
+        WATCH["Rule watcher<br/>15s poll · Horizon cursor"]
+        KEYS[("Wallet Kit · passkey<br/>automation key in IndexedDB")]
+    end
+    API["API routes<br/>server-only keys"]
+    ANCHOR["TRY Anchor<br/>SEP-1/6/10/12/38"]
+    MANDATE["Mandate contract<br/>assets · cap · bounds · expiry"]
+    ROUTER["Soroswap router<br/>quote · swap · reserves"]
+    BANK["Bank account"]
+
+    UI --> KEYS
+    UI --> API
+    UI <--> ANCHOR
+    WATCH --> ANCHOR
+    WATCH -->|"execute, inside the mandate"| MANDATE
+    KEYS -->|"signs the mandate once"| MANDATE
+    MANDATE -->|"pull · swap · forward to owner"| ROUTER
+    ROUTER -.->|"spot price the rules fire on"| WATCH
+    ANCHOR <--> BANK
+```
+
+| Component | Responsibility |
+|---|---|
+| [automation.ts](src/lib/automation.ts) | The rule engine. Watches Horizon by cursor, decides what each payment triggers, runs each allocation as its own swap, and records what it chose *not* to do |
+| [mandate contract](contracts/mandate/src/lib.rs) | The only thing that can move the owner's funds. Holds the policy and enforces it on every call |
+| [mandate.ts](src/lib/mandate.ts) | Client for that contract: set, execute, revoke, and rebuild a wallet's history from its events |
+| [anchor.ts](src/lib/anchor.ts) | The whole SEP surface — discovery, auth, customer records, quotes, deposit and withdrawal |
+| [api.ts](src/lib/api.ts) · [prices.ts](src/lib/prices.ts) | Soroswap: quotes and swaps simulated and submitted on-chain; spot prices read from pool reserves |
+| [secure-key.ts](src/lib/secure-key.ts) · [passkey.ts](src/lib/passkey.ts) | Two keys that are never stored as text — the automation key, and the owner's when signing in without an extension |
+| [api routes](src/app/api) | Thin proxies so the Telegram token and the model key stay on the server |
+
+**Three decisions shape the rest.** The watcher runs in the browser, because a server-side one
+would need custody — the trade is that rules run while a tab is open. Quotes are read from the
+chain rather than an indexer, because Soroswap's routing API does not index testnet pools. And
+every amount is a decimal string end to end: no float touches a balance.
 
 ## The mandate: automation without custody
 
@@ -148,6 +198,70 @@ refuses to send an unattributable payment when none comes back; deposits need a 
 the anchor parks the payment in `pending_trust`; and a swap needs a trustline for **both** of its
 assets — SAC error `#13` does not say which side failed, which sent one debugging session down the
 wrong path.
+
+## Deployed artifacts
+
+All on **Stellar Testnet** (`Test SDF Network ; September 2015`). The mandate is the only contract
+this project authors; the others are the deployments it is wired to, listed because the mandate
+stores them and a reviewer can check the wiring without reading the source.
+
+| What | ID | |
+|---|---|---|
+| **Mandate contract** *(ours)* | `CAAPS6MYLC2DQ4TPOCRDKBCG4HVSQ35P4PCGQ7LAIISHQSPCP4RJ7DPO` | [explorer](https://stellar.expert/explorer/testnet/contract/CAAPS6MYLC2DQ4TPOCRDKBCG4HVSQ35P4PCGQ7LAIISHQSPCP4RJ7DPO) |
+| Soroswap router | `CCJUD55AG6W5HAI5LRVNKAE5WDP5XGZBUDS5WNTIVDU7O264UZZE7BRD` | [explorer](https://stellar.expert/explorer/testnet/contract/CCJUD55AG6W5HAI5LRVNKAE5WDP5XGZBUDS5WNTIVDU7O264UZZE7BRD) |
+| Soroswap factory | `CDP3HMUH6SMS3S7NPGNDJLULCOXXEPSHY4JKUKMBNQMATHDHWXRRJTBY` | [explorer](https://stellar.expert/explorer/testnet/contract/CDP3HMUH6SMS3S7NPGNDJLULCOXXEPSHY4JKUKMBNQMATHDHWXRRJTBY) |
+| Anchor USDC (SAC) | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` | issuer `GBBD47IF…LFLA5` |
+
+Source: [contracts/mandate/src/lib.rs](contracts/mandate/src/lib.rs) — 401 lines, Soroban SDK,
+with [17 tests](contracts/mandate/src/test.rs). Build and test it yourself:
+
+```bash
+cd contracts && cargo test              # 17 tests, no network needed
+stellar contract build                  # wasm32v1-none
+```
+
+The deployed instance answers for its own configuration, so the table above can be verified rather
+than trusted:
+
+```bash
+stellar contract invoke --id CAAPS6MY…7DPO --network testnet -- router
+stellar contract invoke --id CAAPS6MY…7DPO --network testnet -- base
+```
+
+## Technical challenges
+
+**A delegate that can act but cannot steal.** Classic multisig cannot express "at most X per day,
+only this asset, only below this price" — thresholds are per operation *category*. The mandate
+contract does, and the property that makes it safe is not the parameter list: the recipient of a
+swap is not a parameter at all, so a compromised automation key can waste value but cannot
+redirect it.
+
+**Authorising a swap the contract does not itself perform.** The router moves the input out of the
+mandate contract from a frame the contract does not own, and its own authorisation does not reach
+that far down the stack. Exactly one sub-invocation is signed for — this pair, this amount, no
+further calls — with `authorize_as_current_contract` ([lib.rs](contracts/mandate/src/lib.rs)),
+rather than granting blanket authority for the call tree.
+
+**Attributing a failure across three contracts.** One `execute` passes through the token, the
+mandate and the router, and all three report failure as `Error(Contract, #N)`. The mandate's codes
+start at 100 precisely so they cannot collide with the SAC's single digits or the router's 5xx —
+which means a refusal can be traced to whoever actually refused instead of guessed at.
+
+**A trustline error that names the wrong side.** SAC error `#13` is `TrustlineMissing` and does not
+say which asset failed. An account cannot receive an asset it does not trust *or spend one*, so a
+swap needs both legs open. Reporting only the output sent one debugging session down the wrong
+path; both are opened before the transaction is built now.
+
+**A price that is true and still refused.** The pool's spot price and the price a sale actually
+fills at differ by the fee and the trade's own depth. The contract checks its bound on the fill, so
+a rule comparing spot opened a band where it fired and the chain refused — every fifteen seconds,
+forever. The same class of problem runs through the app: what the UI believes and what the chain
+enforces are separate, and where they disagree the UI now shows both.
+
+**Testnet pools nobody else trades.** A price-triggered rule waits for a market that does not move.
+[scripts/pool.cjs](scripts/pool.cjs) moves it the way a trader would — buying through the router
+from a throwaway Friendbot account until the pool sits at the target — so the exit can be
+demonstrated firing on a real price rather than on a mock.
 
 ## Running it
 
