@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { ASSET_OPTIONS } from '../constants';
+import { ASSET_OPTIONS, SOROSWAP_ROUTER_CONFIG } from '../constants';
 
 // Server-only: turns a free-text strategy description into automation-rule fields.
 // Provider is switchable via AI_PROVIDER without touching this file's callers —
@@ -47,6 +47,7 @@ const TOOL_DESCRIPTION =
   'question and leave every other field unset — never guess a number the user did not imply.';
 
 const ASSET_SYMBOLS = ASSET_OPTIONS.map(asset => asset.symbol);
+const USDC_CONTRACT = SOROSWAP_ROUTER_CONFIG.USDC;
 
 // Overridable without a code change — set GEMINI_MODEL / ANTHROPIC_MODEL in .env.local
 // to point at a newer model release; these are the defaults when unset.
@@ -87,7 +88,10 @@ const TOOL_PARAMETERS = {
     },
     allocations: {
       type: 'array',
-      description: 'Only when mode is "portfolio": how to split incoming USDC across assets.',
+      description:
+        'Only when mode is "portfolio": how to split incoming USDC across assets. Never include USDC ' +
+        'itself — dollars that stay are simply not allocated, so "put half in XLM and leave the rest in ' +
+        'dollars" is one row of 50, not two. Percentages may total less than 100.',
       items: {
         type: 'object',
         properties: {
@@ -105,6 +109,8 @@ const SYSTEM_PROMPT =
   "You configure a Stellar/Soroswap automated trading rule from a user's plain-language description. " +
   'All price thresholds the user mentions are denominated in USDC — the currency the automation actually trades against. ' +
   `Only these asset symbols exist: ${ASSET_SYMBOLS.join(', ')}. If the user names something else, ask via clarification. ` +
+  'USDC is the currency held, not an asset to allocate to: whatever is left unallocated stays in USDC, so never ' +
+  'write a USDC allocation row. ' +
   'Always call the set_automation_rule tool — never answer in plain text.';
 
 function resolveAssets(raw: RawToolArgs): StrategyDraft {
@@ -141,6 +147,12 @@ function resolveAssets(raw: RawToolArgs): StrategyDraft {
           clarification: `I don't recognize the asset "${row.assetSymbol}". Supported: ${ASSET_SYMBOLS.join(', ')}.`,
         };
       }
+      // "Leave the rest in dollars" is the absence of a row, not a row holding dollars — the
+      // remainder of an allocation is already USDC. A model that writes one anyway produces a
+      // row the form cannot show, because the asset picker has no USDC entry to select, so it
+      // lands as an empty row that looks like the answer came back broken. Dropped here rather
+      // than only discouraged in the prompt: the prompt is a request, this is the guarantee.
+      if (match.value === USDC_CONTRACT) continue;
       resolved.push({ asset: match.value, percent: row.percent });
     }
     draft.allocations = resolved;

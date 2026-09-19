@@ -2664,7 +2664,16 @@ export default function AnchorPage() {
                           };
                         }
                         if (aiDraft.allocations?.length) {
-                          patch.allocations = aiDraft.allocations.map(row => ({ asset: row.asset, percent: row.percent ?? 0 }));
+                          // The picker offers every asset except USDC, so a row naming it — or
+                          // naming nothing — renders as a blank select the user cannot fix or
+                          // explain. Filtered on the way in: a draft is a suggestion, and a
+                          // suggestion the form cannot display is not one worth keeping.
+                          const usable = aiDraft.allocations.filter(
+                            row => row.asset && row.asset !== SOROSWAP_ROUTER_CONFIG.USDC
+                          );
+                          if (usable.length) {
+                            patch.allocations = usable.map(row => ({ asset: row.asset, percent: row.percent ?? 0 }));
+                          }
                         }
                         updateRule(patch);
                         setAiDraft(null);
