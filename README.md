@@ -232,7 +232,7 @@ stellar contract invoke --id CAAPS6MY…7DPO --network testnet -- router   # and
 | **12** | Customer record and TRY payout IBAN |
 | **38** | Firm quotes, and the TRY reference rate shown across the app |
 | **6** | Programmatic deposit and withdrawal, with polling and status handling |
-| **40** | Reflector oracle read, shown beside the pool price so the testnet gap is visible |
+| **41** | The token interface the allowance rests on: `approve` grants it to the contract, `transfer_from` is how the contract pulls the funds itself |
 
 ## What was hard
 
@@ -322,9 +322,10 @@ deployed and enforcing assets, cap, price bounds and expiry. What it does not do
 - **Buy & sell holds one position.** Several price-conditional positions is a contract change: a
   mandate carries a single `buy_below` for every asset it covers, and one shared bound is
   meaningless across assets priced decades apart.
-- **Testnet pools sit far from the real market** — XLM about 41% below the Reflector rate when
-  measured. Rules fire on the pool's price, because that is the market the swap fills in; the
-  oracle rate is shown alongside so the gap is visible rather than misleading.
+- **Testnet pools sit far from the real market** — XLM about 41% below the Reflector oracle when
+  measured against it. Rules fire on the pool's price anyway, because that is the market the swap
+  actually fills in: a bound checked against an oracle the router never consults would refuse
+  trades the market would have honoured, and honour ones it would not.
 
 **Roadmap**
 
