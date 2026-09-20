@@ -89,18 +89,10 @@ So the rule went into a contract. Three properties carry it:
 Revoking is one call. 17 tests cover the cap resetting with its window, both bounds, expiry,
 revocation, a wrong delegate, legs that bypass the base asset, and owner isolation.
 
-**How this got here.** v1 was a grid bot that held the funds — **the version that won DoraHacks**
-([soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders),
-[demo](https://youtu.be/RZaMhQO9pdw)), still shipped here as [/price](src/app/price/page.tsx). v2
-was the multisig attempt ([MultisigSwapTrader.ts](src/lib/MultisigSwapTrader.ts)). v3 is the
-contract. Both earlier attempts are still in the repository: the evidence of being wrong twice.
-
-**Where the keys live.** The automation key is generated `extractable: false` and stored in
-IndexedDB as a `CryptoKey` ([secure-key.ts](src/lib/secure-key.ts)) — the browser signs with it but
-cannot read it back, so there is no seed to lift. Signing in needs no extension either:
-[passkey.ts](src/lib/passkey.ts) derives a Stellar account from WebAuthn's PRF output. Not a smart
-account, and the reason is the anchor — SEP-10 authenticates a *classic keypair* signing a
-challenge, a contract account needs SEP-45, and this anchor serves only the former.
+> **Built on what came before.** v1 was a grid bot that held the funds — **the version that won
+> DoraHacks** ([soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders),
+> [demo](https://youtu.be/RZaMhQO9pdw)), still shipped here as [/price](src/app/price/page.tsx).
+> v2 was the multisig attempt, also still in this repository. This is v3.
 
 ## How it works
 
@@ -203,6 +195,13 @@ the trade's own depth. The contract checks its bound on the fill, so a rule comp
 band where it fired and the chain refused — every fifteen seconds, forever. The lesson runs through
 the app: what the UI believes and what the chain enforces are separate, and where they disagree the
 UI shows both.
+
+**Wanting a smart account and not getting one.** The natural way to sign in without an extension
+is a contract account verifying secp256r1, so the passkey signs for the chain directly. It cannot
+be used here: SEP-10 authenticates a *classic keypair* signing a challenge, a contract account
+needs SEP-45, and this anchor serves only the former — a smart account could not deposit or
+withdraw, which is most of the product. [passkey.ts](src/lib/passkey.ts) derives a classic key from
+WebAuthn's PRF output instead: no seed stored, no extension, and every signature path unchanged.
 
 **Testnet pools nobody else trades.** A price-triggered rule waits for a market that does not move.
 [scripts/pool.cjs](scripts/pool.cjs) moves it the way a trader would, from a throwaway Friendbot
