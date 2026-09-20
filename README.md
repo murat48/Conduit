@@ -126,6 +126,64 @@ the automation wallet, because they never reach it.
 Portfolio mode stops at step 3, under the mandate. Buy & sell continues through step 6 on the
 automation wallet's own balance — see [what is honest about it](#what-is-honest-about-it).
 
+**Where each piece sits.** Solid arrows run with no signature from the owner. Dashed arrows are
+the three signatures of phase 1, and the key material that never leaves the browser.
+
+```mermaid
+flowchart TB
+    OWN["Owner wallet<br/>extension or passkey<br/>holds the funds throughout"]
+    BANK["Turkish bank account<br/>TRY by IBAN"]
+    ANCH["Anchor<br/>SEP 1, 10, 12, 6, 38"]
+
+    subgraph BR["Browser - the whole client, no server-side custody"]
+        UI["page.tsx<br/>rule builder and dashboard"]
+        ENG["automation.ts<br/>cursor watcher, rule engine, cap clamp"]
+        MC["mandate.ts<br/>set, execute, revoke, event history"]
+        AC["anchor.ts<br/>discovery, auth, KYC, quotes, transfers"]
+        BK["secure-key.ts<br/>automation wallet<br/>non-extractable CryptoKey in IndexedDB"]
+        PK["passkey.ts<br/>WebAuthn PRF to Ed25519<br/>re-derived per signature, never stored"]
+    end
+
+    subgraph SRV["Next.js route handlers - secrets only, no funds"]
+        TG["Telegram proxy"]
+        LLM["Model proxy<br/>plain language to a rule"]
+    end
+
+    subgraph NET["Stellar testnet"]
+        HZ["Horizon<br/>payments by cursor"]
+        MD["Mandate contract<br/>cap per window, price bounds,<br/>one delegate, fixed recipient"]
+        SAC["USDC SAC<br/>allowance owner to contract"]
+        RT["Soroswap router, factory, pools"]
+    end
+
+    BANK -->|wire| ANCH
+    ANCH -->|USDC payment| OWN
+    ANCH -->|withdrawal back to IBAN| BANK
+    AC <-->|deposit, withdrawal, quotes| ANCH
+    UI --> AC
+    UI --> ENG
+    UI -.->|prompt| LLM
+    PK -.->|derives the address| OWN
+    OWN -.->|signature 1, anchor login| AC
+    OWN -.->|signature 2, allowance| SAC
+    OWN -.->|signature 3, mandate terms| MD
+    BK -.->|its address is the delegate| MD
+    ENG -->|polls every 15s| HZ
+    ENG -->|spot price from reserves| RT
+    ENG --> MC
+    ENG -->|leg by leg report| TG
+    MC -->|execute, signed by the automation wallet| MD
+    BK -.->|signs the execute envelope| MC
+    MD -->|transfer_from on the allowance| SAC
+    MD -->|swap_exact_tokens_for_tokens| RT
+    MD -->|forwards the bought asset| OWN
+    ANCH -->|the same payment lands on the ledger| HZ
+```
+
+The automation wallet appears nowhere in the money path. It signs an *instruction*; the contract
+decides whether to honour it, pulls from the allowance itself, and sends the result to an address
+it reads from its own storage. That is why a leaked delegate key is a nuisance and not a loss.
+
 | Component | Responsibility |
 |---|---|
 | [mandate contract](contracts/mandate/src/lib.rs) | The only thing that can move the owner's funds. Holds the policy and enforces it on every call |
