@@ -68,13 +68,12 @@ gave ([ai/strategy.ts](src/lib/ai/strategy.ts)).
 The owner signs one Soroban contract ([contracts/mandate](contracts/mandate/src/lib.rs)) recording
 which assets may be traded, how much may leave per window, the price bounds and an expiry.
 
-**Why a contract, and not the obvious options** — we built the first two:
-
-| | Why it was not enough |
-|---|---|
-| **Fund a bot** *(v1, still how buy & sell runs)* | Nothing on chain caps what it does with the budget, and the money has already left the wallet |
-| **Approve the bot** | A token allowance caps the amount and nothing else — which asset, at what price, how often all stay promises made off chain |
-| **Classic multisig** *(v2)* | Thresholds are per operation *category*, not per amount or asset; and 2-of-2 needs a signature per trade, which defeats automating |
+**Why a contract, and not the obvious options.** *Funding a bot* — our v1, and still how buy &
+sell runs — has already taken the money out of the wallet, and nothing on chain caps what it does
+with it. *Approving the bot* caps the amount and nothing else: which asset, at what price, how
+often all stay promises made off chain. *Classic multisig* cannot express them either — thresholds
+are per operation **category**, not per amount or asset, and 2-of-2 needs a signature on every
+trade, which defeats automating at all.
 
 So the rule went into a contract. Three properties carry it:
 
