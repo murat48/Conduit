@@ -9,9 +9,12 @@ it across assets by percentage**, or **buy one and sell it at a price you set** 
 go back to **your IBAN as lira**. A Soroban contract holds the rule and refuses everything outside
 it.
 
-[**Live on testnet →**](https://conduit-psi-three.vercel.app) · Mandate contract
+Live on testnet at **[conduit-psi-three.vercel.app](https://conduit-psi-three.vercel.app)** ·
+[**Watch the demo**](https://youtu.be/lvrSbRIXFZ8) · Mandate contract
 [`CAAPS6MY…7DPO`](https://stellar.expert/explorer/testnet/contract/CAAPS6MYLC2DQ4TPOCRDKBCG4HVSQ35P4PCGQ7LAIISHQSPCP4RJ7DPO)
 · Track: Scale · [SKILLS.md](SKILLS.md)
+
+[<img src="https://img.youtube.com/vi/lvrSbRIXFZ8/maxresdefault.jpg" alt="Conduit — watch the demo" width="640"/>](https://youtu.be/lvrSbRIXFZ8)
 
 > **A stolen automation key cannot steal.** Theft needs a recipient, and in this contract the
 > recipient is not a parameter:
@@ -90,7 +93,7 @@ revocation, a wrong delegate, legs that bypass the base asset, and owner isolati
 
 > **Built on what came before.** v1 was a grid bot that held the funds — **the version that won
 > DoraHacks** ([soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders),
-> [demo](https://youtu.be/RZaMhQO9pdw)), still shipped here as [/price](src/app/price/page.tsx).
+> [v1 demo](https://youtu.be/RZaMhQO9pdw)), still shipped here as [/price](src/app/price/page.tsx).
 > v2 was the multisig attempt, also still in this repository. This is v3.
 
 ## How it works
@@ -230,7 +233,6 @@ stellar contract invoke --id CAAPS6MY…7DPO --network testnet -- router   # and
 | **38** | Firm quotes, and the TRY reference rate shown across the app |
 | **6** | Programmatic deposit and withdrawal, with polling and status handling |
 | **40** | Reflector oracle read, shown beside the pool price so the testnet gap is visible |
-| **41** | `approve` / `transfer_from` / `balance` for delegated execution |
 
 ## What was hard
 
@@ -349,7 +351,7 @@ deployed and enforcing assets, cap, price bounds and expiry. What it does not do
 ## Also in the tree
 
 **Conduit is built on [soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders)**
-— the v1 grid bot that won DoraHacks ([demo](https://youtu.be/RZaMhQO9pdw)). This is the third
+— the v1 grid bot that won DoraHacks ([v1 demo](https://youtu.be/RZaMhQO9pdw)). This is the third
 version of that idea, with the custody taken out; v1 itself still ships here as
 [/price](src/app/price/page.tsx), reachable by URL.
 
