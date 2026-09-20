@@ -30,9 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — every one of them, the example included. It holds no secrets, but
-# a file in the repo is a file people fill in and push back.
+# env files. .env.example is the exception: it names every key the app reads and carries no
+# secret, so cloning and copying it is the fastest way to a running app.
 .env*
+!.env.example
 
 # vercel
 .vercel

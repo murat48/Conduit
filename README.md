@@ -348,10 +348,15 @@ deployed and enforcing assets, cap, price bounds and expiry. What it does not do
 
 ## Also in the tree
 
-Kept on purpose, so that finding it is not a surprise: [/price](src/app/price/page.tsx) (the v1
-grid bot, reachable by URL), [/swap](src/app/swap/page.tsx) (a manual swap desk),
-[MultisigSwapTrader.ts](src/lib/MultisigSwapTrader.ts) and its `/api/multisig-*` routes (the v2
-attempt — nothing in the app calls them), and [docs/pitch/](docs/pitch) (the pitch deck).
+**Conduit is built on [soroswap-quote-traders](https://github.com/murat48/soroswap-quote-traders)**
+— the v1 grid bot that won DoraHacks ([demo](https://youtu.be/RZaMhQO9pdw)). This is the third
+version of that idea, with the custody taken out; v1 itself still ships here as
+[/price](src/app/price/page.tsx), reachable by URL.
+
+The rest is kept on purpose, so that finding it is not a surprise: [/swap](src/app/swap/page.tsx)
+(a manual swap desk), [MultisigSwapTrader.ts](src/lib/MultisigSwapTrader.ts) and its
+`/api/multisig-*` routes (the v2 attempt — nothing in the app calls them), and
+[docs/pitch/](docs/pitch) (the pitch deck).
 
 ---
 
