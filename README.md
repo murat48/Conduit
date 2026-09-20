@@ -110,22 +110,22 @@ Two phases. The owner is in the first and absent from the second — that gap is
 
 ```mermaid
 flowchart LR
-    A["1 · Connect<br/><i>extension or passkey</i>"] --> B["2 · Log in to the anchor<br/><i>SEP-10 · 1 signature</i>"]
-    B --> C["3 · Create the automation wallet<br/><i>a key in the browser · no signature</i>"]
-    C --> D["4 · Approve the allowance<br/><i>spender = the contract · 1 signature</i>"]
-    D --> E["5 · Set the mandate<br/><i>limits + who may ask · 1 signature</i>"]
-    C -.->|"its address is the delegate"| E
+    A["1 Connect<br/>extension or passkey"] --> B["2 Log in to the anchor<br/>SEP-10, one signature"]
+    B --> C["3 Create the automation wallet<br/>a key in the browser, no signature"]
+    C --> D["4 Approve the allowance<br/>spender is the contract, one signature"]
+    D --> E["5 Set the mandate<br/>limits and who may ask, one signature"]
+    C -.->|its address is the delegate| E
 ```
 
 **Phase 2 — runs on its own, with no signature from the owner**
 
 ```mermaid
 flowchart LR
-    A["1 · USDC arrives<br/><i>anchor pays the owner's wallet</i>"] --> B["2 · Seen<br/><i>watcher · Horizon cursor · ≤15s</i>"]
-    B --> C["3 · Bought<br/><i>one call: pull · swap · return</i>"]
-    C --> D["4 · Held<br/><i>pool price polled against the target</i>"]
-    D --> E["5 · Sold<br/><i>same call, other direction</i>"]
-    E --> F["6 · Cashed out<br/><i>SEP-6 withdrawal → bank</i>"]
+    A["1 USDC arrives<br/>anchor pays the owner wallet"] --> B["2 Seen<br/>watcher, Horizon cursor, 15s"]
+    B --> C["3 Bought<br/>one call, pull swap return"]
+    C --> D["4 Held<br/>pool price polled against the target"]
+    D --> E["5 Sold<br/>same call, other direction"]
+    E --> F["6 Cashed out<br/>SEP-6 withdrawal to the bank"]
 ```
 
 **Step 3 is one transaction, not three.** The contract pulls the USDC on the allowance, swaps
